@@ -4,6 +4,10 @@ from operator import truediv
 from string import ascii_letters
 import platform
 import os
+import os.path
+import pickle
+import io
+
 
 """
 TYPE
@@ -26,7 +30,7 @@ cupos_numeros = datos de cupos tipo entero
 
 #inicializacion de variables
 cant_camio = 0
-producto = [" "] *3 #cuando termine poner [" "]*3
+producto = [" "] *3 
 cant=0
 proddis = ["TRIGO", "SOJA", "MAIZ", "GIRASOL", "CEBADA"]
 p = 0
@@ -38,7 +42,76 @@ for i in range (0,8):
     
 for i in range (0,8):
     cupos_numeros [i] = [0]* 3
+
+class productos:
+    def __init__(self) :
+        self.nombre= " "
+        self.codigo= 0
+        self.habilitado = "T"
+
+p = productos()
+p_largo = 105
+productos_fisico = "C:\\Users\\Cataldi\\Desktop\\Santino\\Facultad\\Algoritmo y Estructura de Datos\\Trabajo_n3\\productos.bat"
+
+
     
+#Funciones
+
+
+
+        
+def mostrar_productos():
+    a = productos()
+    if os.path.exists(productos_fisico):
+        productos_logico= open(productos_fisico,"r+b")
+    else:
+        productos_logico = open(productos_fisico,"w+b")
+
+    t = os.path.getsize(productos_fisico)
+    productos_logico.seek(0)
+    while productos_logico.tell()< t:
+        a = pickle.load(productos_logico)
+        if a.habilitado == "T" :
+            print("---------------------------------")
+            print("Nombre: ", a.nombre)
+            print("Codigo: ", a.codigo)
+            print("habilitado: ", a.habilitado)
+    productos_logico.close()
+            
+            
+def buscar_producto(prod):
+    t = os.path.getsize(productos_fisico)
+    if os.path.exists(productos_fisico):
+        productos_logico= open(productos_fisico,"r+b")
+    else:
+        productos_logico = open(productos_fisico,"w+b")
+
+    productos_logico.seek(0)
+    while productos_logico.tell()< t:
+        pos =  productos_logico.tell()
+        a = pickle.load(productos_logico)
+        if a.nombre == prod:
+            return pos
+    return -1
+    
+    
+def buscar_codigo(c):
+    t = os.path.getsize(productos_fisico)
+    if os.path.exists(productos_fisico):
+        productos_logico= open(productos_fisico,"r+b")
+    else:
+        productos_logico = open(productos_fisico,"w+b")
+
+    productos_logico.seek(0)
+    while productos_logico.tell()< t:
+        pos =  productos_logico.tell()
+        a = pickle.load(productos_logico)
+        if a.codigo == c:
+            return pos
+    return -1
+    productos_logico.close()
+    
+        
 def mostrar_lista(lista,tamaño):
     for i in range(0,tamaño):
         print ("[", i, "]",lista[i])
@@ -145,63 +218,96 @@ def menu_b():
     while opcion_opcion != "v": 
         limp_pantalla()
         if opcion_opcion == "a":
-            mostrar_lista(proddis,5)
-            print("[ 5 ] Terminar seleccion")
-            p =int(input("Ingrese numero de producto que desea registrar / 5 para terminar: "))
-            while p<0 or p > 5:
-                print("Ingresaste un numero incorrecto,intenta denuevo...")
-                p =int(input("Ingrese numero de producto que desea registrar / 5 para terminar: "))
-            limp_pantalla()
-            while p != 5 and cant < 3:
-             mostrar_lista(proddis,5)
-             print("[ 5 ] Terminar seleccion")
-             producto [cant] = proddis[p]
-             cant += 1
-             if cant != 3:
-                p =int(input("Ingrese numero de producto que desea registrar / 5 para terminar: "))
-                while p <0 or p > 5 or buscar_lista(producto,3,proddis[p]):
-                    if buscar_lista(producto,3,proddis[p]):
-                        print("Este producto ya se registro...")
-                    else:
-                        print("Ingresaste un producto equivocado...")
-                    p =int(input("Ingrese numero de producto que desea registrar / 5 para terminar: "))
-             limp_pantalla()
-             
-             
-            if cant == 3:
-                print("Ya ingresaste los tres productos, ingrese a otro menu para modificarlos")
-                input("Presione cualquier tecla para volver")
-            limp_pantalla()
+            if os.path.exists(productos_fisico):
+                productos_logico= open(productos_fisico,"r+b")
+            else:
+                productos_logico = open(productos_fisico,"w+b")
 
+        
+            p.nombre = input("Ing nombre de nuevo producto ( menor a 20 caracteres): ")
+            p.nombre = p.nombre.ljust(20) 
+            
+            while len(p.nombre) > 20 or buscar_producto(p.nombre) != -1:
+                if buscar_producto(p.nombre) !=-1:
+                    print("ingresaste un producto que ya existe.")
+                else:
+                    print("Ingresaste un nombre incorrecto,intenta denuevo.")
+                p.nombre = input("Ing nombre de nuevo producto ( menor a 20 caracteres): ")
+            while p.nombre != "0                   ":
+             
+             p.codigo = int(os.path.getsize(productos_fisico) / p_largo) 
+             
+             productos_logico.seek(os.path.getsize(productos_fisico))
+             pickle.dump(p, productos_logico)
+             productos_logico.flush()
+             
+             p.nombre = input("Ing nombre de nuevo producto ( menor a 20 caracteres): ")
+             p.nombre = p.nombre.ljust(20) 
+             while len(p.nombre) > 20 or buscar_producto(p.nombre) != -1:
+                if buscar_producto(p.nombre) !=-1:
+                    print("ingresaste un producto que ya existe.")
+                else:
+                    print("Ingresaste un nombre incorrecto,intenta denuevo.")
+                p.nombre = input("Ing nombre de nuevo producto ( menor a 20 caracteres): ")
+            productos_logico.close()
+             
+             
+        
+            
+    
         if opcion_opcion == "b":
-            mostrar_lista(producto,3)
-            limp= int(input("Ingrese nº producto que desea eliminar: "))
-            while limp >2 or limp <0  :
+            if os.path.exists(productos_fisico):
+                productos_logico= open(productos_fisico,"r+b")
+            else:
+                productos_logico = open(productos_fisico,"w+b")
+            mostrar_productos()
+            limp= int(input("Ingrese codigo producto que desea eliminar: "))
+            while buscar_codigo(limp) ==-1:
                 print("Ingresaste un numero incorrecto,intenta denuevo...")
                 limp= int(input("Ingrese producto que desea eliminar: "))
-            producto [limp] = " "
+            productos_logico.seek(buscar_codigo(limp)) 
+            n = pickle.load(productos_logico)
+            n.habilitado = "F"
+            productos_logico.seek(buscar_codigo(limp)) 
+            pickle.dump(n, productos_logico)
+            productos_logico.flush()
+            productos_logico.close()
             limp_pantalla()
 
 
         if opcion_opcion == "c":
-            print( "listado de productos: ")
-            mostrar_lista(producto,3)
+            print( "Listado de productos: ")
+            mostrar_productos()
             input("Presione cualquier tecla para volver")
             limp_pantalla()
 
         if opcion_opcion == "m":
-            mostrar_lista(producto,3)
+            if os.path.exists(productos_fisico):
+                productos_logico= open(productos_fisico,"r+b")
+            else:
+                productos_logico = open(productos_fisico,"w+b")
+            mostrar_productos()
 
-            cl= int(input("Ingrese nº producto que desea modificar: "))
-            while cl >2 or cl <0  :
-             cl= int(input("Ingrese nº producto que desea modificar: "))
+            print("***SOLO PUEDE MODIFICAR EL NOMBRE DEL PRODUCTO***")
+            cl= int(input("Ingrese codigo producto que desea modificar: "))
             
-            mostrar_lista(proddis,5)
-
-            newp = int(input("Ingrese nº del nuevo producto: "))
-            while newp <0 or newp>4 :
-                newp = int(input("Ingrese nº del nuevo producto: "))
-            producto[cl] = proddis[newp]
+            while buscar_codigo(cl) == -1: 
+             print("Ingresaste codigo incorrecto, intenta denuevo...")
+             cl= int(input("Ingrese nº producto que desea modificar: "))
+             
+            productos_logico.seek(cl * p_largo)
+            p =pickle.load(productos_logico)
+            newp = input("Ingrese nuevo nombre del producto: ")
+            
+            while buscar_producto(newp) != -1: 
+                print("Ingresaste un producto ya existente, intenta denuevo...")
+                newp = input("Ingrese nuevo nombre del producto: ")
+            p.nombre = newp
+            p.nombre = p.nombre.ljust(20)
+            productos_logico.seek(cl * p_largo)
+            pickle.dump(p,productos_logico)
+            productos_logico.flush()
+            productos_logico.close()
             limp_pantalla()
             
             
@@ -212,6 +318,58 @@ def menu_b():
         mostrar_menuopciones()
         opcion_opcion =input("introduzca otra opcion: ")
         limp_pantalla()
+def menu_c():
+    mostrar_menuopciones()
+    opcion_c = input ( "Ingrese opcion: ")
+    limp_pantalla()
+    while opcion_c != "v":
+        if opcion_c == "a":
+            None
+        if opcion_c == "b" or opcion_c == "c" or opcion_c == "m":
+            print ("Esta funcionalidad esta en construccion...")
+            input("Presione cualquier tecla para volver ")
+            limp_pantalla()
+        if opcion_c != "a" and opcion_c != "b" and opcion_c != "c" and opcion_c != "m" and opcion_c != "v":
+            print("Ingresaste una opcion inexistente, intenta denuevo...")
+        mostrar_menuopciones()
+        opcion_c = input ( "Ingrese opcion: ")
+        limp_pantalla()
+def menu_d():
+    mostrar_menuopciones()
+    opcion_d = input ( "Ingrese opcion: ")
+    limp_pantalla()
+    while opcion_d != "v":
+        if opcion_d == "a":
+            None
+        if opcion_d == "b" or opcion_d == "c" or opcion_d == "m":
+            print ("Esta funcionalidad esta en construccion...")
+            input("Presione cualquier tecla para volver ")
+            limp_pantalla()
+        if opcion_d != "a" and opcion_d != "b" and opcion_d != "c" and opcion_d != "m" and opcion_d != "v":
+            print("Ingresaste una opcion inexistente, intenta denuevo...")
+        mostrar_menuopciones()
+        opcion_d = input ( "Ingrese opcion: ")
+        limp_pantalla()
+def menu_e():
+    mostrar_menuopciones()
+    opcion_e = input ( "Ingrese opcion: ")
+    limp_pantalla()
+    while opcion_e != "v":
+        if opcion_e == "a":
+            None
+        if opcion_e == "b" or opcion_e == "c" or opcion_e == "m":
+            print ("Esta funcionalidad esta en construccion...")
+            input("Presione cualquier tecla para volver ")
+            limp_pantalla()
+        if opcion_e != "a" and opcion_e != "b" and opcion_e != "c" and opcion_e != "m" and opcion_e != "v":
+            print("Ingresaste una opcion inexistente, intenta denuevo...")
+        mostrar_menuopciones()
+        opcion_e = input ( "Ingrese opcion: ")
+        limp_pantalla()
+#falta ponerle las funciones       
+            
+            
+    
 
 def menu_admi():
     mostrar_menuadmi() 
@@ -219,14 +377,17 @@ def menu_admi():
     limp_pantalla()
     while opcion_admi != "v" : 
         
-        if opcion_admi == "a" or (opcion_admi > "b" and opcion_admi <= "g"): # utilizamos codigo ascii para la comparacion
+        if opcion_admi == "a" or opcion_admi == "f" or opcion_admi == "g": 
 
             menu_op()
-        elif opcion_admi == "b" and pos >= 0:
-            print("Ya no se pueden modificar los productos.")
-            input("Presione cualquier tecla para continuar...")
         elif opcion_admi == "b" :
             menu_b()
+        elif opcion_admi == "c":
+            menu_c()
+        elif opcion_admi == "d":
+            menu_d()
+        elif opcion_admi == "e":
+            menu_e()
   
         elif opcion_admi != "v":
             print("\nIngresaste una opcion inexistente, intenta denuevo...")
@@ -416,7 +577,7 @@ def mostrar_report():
         if cant_producto(i) != 0:
             print("Patente del camión que menor cantidad de ",i," descargó: ", patente_menor(i))
         
-
+        
 mostrar_menup()
 limp_pantalla()
 while opcion_menu != "0" :
