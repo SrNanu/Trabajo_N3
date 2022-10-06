@@ -48,12 +48,37 @@ class productos:
         self.nombre= " "
         self.codigo= 0
         self.habilitado = "T"
+class rubros:
+    def __init__(self) :
+        self.nombre = " "
+        self.codigo = 0
+class rubrosxproductos:
+    def __init__(self):
+        self.codi_p= 0
+        self.codi_r= 0
+        self.minimo = 0.00
+        self.maximo = 0.00
+class silos:
+    def __init__(self) :
+        self.codigo = 0
+        self.nombre = ""
+        self.codi_p = 0
+        self.stock = 0
+    
+
 
 p = productos()
+r = rubros()
+rxp = rubrosxproductos()
+s= silos()
 p_largo = 105
+r_largo = 86
+rxp_largo = 114
+s_largo = 109
 productos_fisico = "C:\\Users\\Cataldi\\Desktop\\Santino\\Facultad\\Algoritmo y Estructura de Datos\\Trabajo_n3\\productos.bat"
-
-
+rubros_fisico = "C:\\Users\\Cataldi\\Desktop\\Santino\\Facultad\\Algoritmo y Estructura de Datos\\Trabajo_n3\\rubros.bat"
+rubrosxproductos_fisico = "C:\\Users\\Cataldi\\Desktop\\Santino\\Facultad\\Algoritmo y Estructura de Datos\\Trabajo_n3\\rubrosxproductos.bat"
+silos_fisico ="C:\\Users\\Cataldi\\Desktop\\Santino\\Facultad\\Algoritmo y Estructura de Datos\\Trabajo_n3\\silos.bat"
     
 #Funciones
 
@@ -78,7 +103,20 @@ def mostrar_productos():
             print("habilitado: ", a.habilitado)
     productos_logico.close()
             
-            
+def buscar_rubro(rub):
+    t = os.path.getsize(rubros_fisico)
+    if os.path.exists(rubros_fisico):
+        rubros_logico= open(rubros_fisico,"r+b")
+    else:
+        rubros_logico = open(rubros_fisico,"w+b")
+
+    rubros_logico.seek(0)
+    while rubros_logico.tell()< t:
+        pos =  rubros_logico.tell()
+        a = pickle.load(rubros_logico)
+        if a.nombre == rub:
+            return pos
+    return -1
 def buscar_producto(prod):
     t = os.path.getsize(productos_fisico)
     if os.path.exists(productos_fisico):
@@ -110,7 +148,36 @@ def buscar_codigo(c):
             return pos
     return -1
     productos_logico.close()
-    
+def buscar_codirubro(c):
+    t = os.path.getsize(rubrosxproductos_fisico)
+    if os.path.exists(rubrosxproductos_fisico):
+        rubrosxproductos_logico= open(rubrosxproductos_fisico,"r+b")
+    else:
+        rubrosxproductos_logico = open(rubrosxproductos_fisico,"w+b")
+
+    rubrosxproductos_logico.seek(0)
+    while rubrosxproductos_logico.tell()< t:
+        pos =  rubrosxproductos_logico.tell()
+        a = pickle.load(rubrosxproductos_logico)
+        if a.codigo == c:
+            return pos
+    return -1
+    rubrosxproductos_logico.close()
+def buscar_silo(sil):
+    t = os.path.getsize(silos_fisico)
+    if os.path.exists(silos_fisico):
+        silos_logico= open(silos_fisico,"r+b")
+    else:
+        silos_logico = open(silos_fisico,"w+b")
+
+    silos_logico.seek(0)
+    while silos_logico.tell()< t:
+        pos =  silos_logico.tell()
+        a = pickle.load(silos_logico)
+        if a.nombre == sil:
+            return pos
+    return -1
+
         
 def mostrar_lista(lista,tamaño):
     for i in range(0,tamaño):
@@ -233,6 +300,7 @@ def menu_b():
                 else:
                     print("Ingresaste un nombre incorrecto,intenta denuevo.")
                 p.nombre = input("Ing nombre de nuevo producto ( menor a 20 caracteres): ")
+                p.nombre = p.nombre.ljust(20)
             while p.nombre != "0                   ":
              
              p.codigo = int(os.path.getsize(productos_fisico) / p_largo) 
@@ -324,7 +392,39 @@ def menu_c():
     limp_pantalla()
     while opcion_c != "v":
         if opcion_c == "a":
-            None
+            if os.path.exists(rubros_fisico):
+                rubros_logico= open(rubros_fisico,"r+b")
+            else:
+                rubros_logico = open(rubros_fisico,"w+b")
+
+        
+            r.nombre = input("Ing nombre de nuevo rubro ( menor a 20 caracteres): ")
+            r.nombre = r.nombre.ljust(20) 
+            
+            while len(r.nombre) > 20 or buscar_rubro(r.nombre) != -1:
+                if buscar_rubro(r.nombre) !=-1:
+                    print("ingresaste un rubro que ya existe.")
+                else:
+                    print("Ingresaste un nombre incorrecto,intenta denuevo.")
+                r.nombre = input("Ing nombre de nuevo rubro ( menor a 20 caracteres): ")
+                r.nombre = r.nombre.ljust(20) 
+            while r.nombre != "0                   ":
+             
+             r.codigo = int(os.path.getsize(rubros_fisico) / r_largo) 
+             
+             rubros_logico.seek(os.path.getsize(rubros_fisico))
+             pickle.dump(r, rubros_logico)
+             rubros_logico.flush()
+             
+             r.nombre = input("Ing nombre de nuevo producto ( menor a 20 caracteres): ")
+             r.nombre = r.nombre.ljust(20) 
+             while len(r.nombre) > 20 or buscar_rubro(r.nombre) != -1:
+                if buscar_rubro(r.nombre) !=-1:
+                    print("ingresaste un producto que ya existe.")
+                else:
+                    print("Ingresaste un nombre incorrecto,intenta denuevo.")
+                r.nombre = input("Ing nombre de nuevo producto ( menor a 20 caracteres): ")
+            rubros_logico.close()
         if opcion_c == "b" or opcion_c == "c" or opcion_c == "m":
             print ("Esta funcionalidad esta en construccion...")
             input("Presione cualquier tecla para volver ")
@@ -340,7 +440,35 @@ def menu_d():
     limp_pantalla()
     while opcion_d != "v":
         if opcion_d == "a":
-            None
+            
+            if os.path.exists(rubrosxproductos_fisico):
+                rubrosxproductos_logico= open(rubrosxproductos_fisico,"r+b")
+            else:
+                rubrosxproductos_logico = open(rubrosxproductos_fisico,"w+b")
+
+        
+            rxp.codi_p = int(input("Ing codigo de producto: "))
+            while  buscar_codigo(rxp.codi_p) == -1:
+                print("ingresaste un producto que no existe.")
+                
+                rxp.codi_p = int(input("Ing codigo de producto: "))
+            rxp.codi_r = int (input("Ing codigo de rubro"))
+            while buscar_codirubro(rxp.codi_r)== -1:
+                print("ingresaste un rubro que no existe.")
+                rxp.codi_r = int (input("Ing codigo de rubro"))
+            rxp.minimo = float("Ingresar valor minimo admitido(entre 0 y 100)")
+            while rxp.minimo > 100 or rxp.minimo < 0:
+                print("ingresaste un  valor equivocado.")
+                rxp.minimo = float("Ingresar valor minimo admitido(entre 0 y 100)")
+            rxp.maximo = float("Ingresar valor maximo admitido(entre 0 y 100)")
+            while rxp.maximo > 100 or rxp.maximo < 0:
+                print("ingresaste un  valor equivocado.")
+                rxp.maximo = float("Ingresar valor maximo admitido(entre 0 y 100)")
+                
+            rubrosxproductos_logico.seek(os.path.getsize(rubrosxproductos_fisico))
+            pickle.dump(rxp,rubrosxproductos_logico)
+            rubrosxproductos_logico.flush()
+            rubrosxproductos_logico.close()
         if opcion_d == "b" or opcion_d == "c" or opcion_d == "m":
             print ("Esta funcionalidad esta en construccion...")
             input("Presione cualquier tecla para volver ")
@@ -350,13 +478,33 @@ def menu_d():
         mostrar_menuopciones()
         opcion_d = input ( "Ingrese opcion: ")
         limp_pantalla()
+        
 def menu_e():
     mostrar_menuopciones()
     opcion_e = input ( "Ingrese opcion: ")
     limp_pantalla()
     while opcion_e != "v":
         if opcion_e == "a":
-            None
+            if os.path.exists(silos_fisico):
+                silos_logico= open(silos_fisico,"r+b")
+            else:
+                silos_logico = open(silos_fisico,"w+b")
+        s.nombre = input("Ingrese nombre del silo (menor a 20 caracteres): ") #podria verificarse la longitud
+        s.nombre = s.nombre.ljust(20)
+        while buscar_silo() != -1 :
+            print("Ingresaste un silo que ya existe.")
+            s.nombre = input("Ingrese nombre del silo (menor a 20 caracteres): ") 
+            s.nombre = s.nombre.ljust(20)
+        s.codigo = int(os.path.getsize(silos_fisico)/ s_largo)
+        s.codi_p = int(input("Ing codigo de producto: "))
+        while  buscar_codigo(s.codi_p) == -1:
+            print("ingresaste un producto que no existe.")
+            
+            s.codi_p = int(input("Ing codigo de producto: "))
+        silos_logico.seek(os.path.getsize(silos_fisico))
+        pickle.dump(s,silos_logico)
+        silos_logico.flush()
+        silos_logico.close
         if opcion_e == "b" or opcion_e == "c" or opcion_e == "m":
             print ("Esta funcionalidad esta en construccion...")
             input("Presione cualquier tecla para volver ")
@@ -366,7 +514,7 @@ def menu_e():
         mostrar_menuopciones()
         opcion_e = input ( "Ingrese opcion: ")
         limp_pantalla()
-#falta ponerle las funciones       
+#falta verificar     
             
             
     
